@@ -1,6 +1,6 @@
 {
   "name": "mysql-wrapper",
-  "version": "0.1.0",
+  "version": "0.0.1-dev",
   "description": "MySQL Wrapping library used like Laravel Eloquent",
   "keywords": [
     "mysql",
@@ -29,6 +29,7 @@
     "dotenv": "^10.0.0"
   },
   "dependencies": {
-    "mysql2": "^2.3.0"
+    "mysql2": "^2.3.0",
+    "slimphp": "^0.1.0"
   }
 }
