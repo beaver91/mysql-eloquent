@@ -1,10 +1,10 @@
 {
-  "name": "mysql-wrapper",
+  "name": "mysql-eloquent",
   "version": "0.0.1-dev",
   "description": "MySQL Wrapping library used like Laravel Eloquent",
   "keywords": [
     "mysql",
-    "wrapper",
+    "eloquent",
     "php",
     "beaver"
   ],
