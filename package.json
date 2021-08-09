@@ -1,0 +1,34 @@
+{
+  "name": "mysql-wrapper",
+  "version": "0.1.0",
+  "description": "MySQL Wrapping library used like Laravel Eloquent",
+  "keywords": [
+    "mysql",
+    "wrapper",
+    "php",
+    "beaver"
+  ],
+  "main": "dist/mysql_eloquent.js",
+  "types": "dist/mysql_eloquent.d.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "test": "npm run build && mocha --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/beaver91/mysql-eloquent.git"
+  },
+  "files": [
+    "dist",
+    "!dist/test"
+  ],
+  "devDependencies": {
+    "@types/dotenv": "^8.2.0",
+    "@types/mysql": "^2.15.19",
+    "@types/node": "^16.4.13",
+    "dotenv": "^10.0.0"
+  },
+  "dependencies": {
+    "mysql2": "^2.3.0"
+  }
+}
