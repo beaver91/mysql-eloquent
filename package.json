@@ -1,6 +1,6 @@
 {
   "name": "mysql-eloquent",
-  "version": "0.0.2-dev",
+  "version": "0.0.3-dev",
   "description": "MySQL Wrapping library used like Laravel Eloquent",
   "keywords": [
     "mysql",
@@ -8,8 +8,8 @@
     "php",
     "beaver"
   ],
-  "main": "dist/mysql_eloquent.js",
-  "types": "dist/mysql_eloquent.d.ts",
+  "main": "dist/MysqlEloquent.js",
+  "types": "dist/MysqlEloquent.d.ts",
   "scripts": {
     "build": "tsc --build",
     "test": "npm run build && mocha --reporter spec"
