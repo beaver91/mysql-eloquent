@@ -4,12 +4,12 @@ MySQL Wrapping library used like Laravel Eloquent
 ## Installing
 Using npm:
 ```
-$ npm install slimphp
+$ npm install mysql-eloquent
 ```
 
 Using yarn:
 ```
-$ yarn add slimphp
+$ yarn add mysql-eloquent
 ```
 
 ## Examples
