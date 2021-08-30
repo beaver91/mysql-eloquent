@@ -81,7 +81,7 @@ export default class MysqlEloquent<T extends IndexSignature> {
      * update
      * @param update T
      */
-    update(update: T): Promise<[mysql.RowDataPacket[] | mysql.RowDataPacket[][] | mysql.OkPacket | mysql.OkPacket[] | mysql.ResultSetHeader, mysql.FieldPacket[]]>;
+    update(update: Partial<T>): Promise<[mysql.RowDataPacket[] | mysql.RowDataPacket[][] | mysql.OkPacket | mysql.OkPacket[] | mysql.ResultSetHeader, mysql.FieldPacket[]]>;
     /**
      * Upserts
      * @param massive

@@ -226,7 +226,7 @@ export default class MysqlEloquent<T extends IndexSignature>
    * update
    * @param update T
    */
-  public async update(update: T)
+  public async update(update: Partial<T>)
   {
     const connection = await MysqlEloquent.getPool();
     const queries: string[] = [];
