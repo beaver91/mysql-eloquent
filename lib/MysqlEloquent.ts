@@ -2,12 +2,18 @@ import mysql from 'mysql2/promise';
 import { is_array, is_undefined } from 'slimphp';
 import { IndexSignature, ConnectionProperties } from './types';
 
+type DBTable = `${string}.${string}`;
 type QueryType = 'insert' | 'select' | 'update' | 'delete' | 'upsert';
 
 /**
  * `boolean` is EXISTS
  */
-type WhereValueCondition = string | number | boolean | object;
+type WhereConditionOperator = '>' | '>=' | '<' | '<=' | '=' | '!=';
+type WhereValue = string | number | boolean | object;
+type WhereValueObject = {
+  "cond": WhereConditionOperator,
+  "value": WhereValue
+};
 type OrderTypes = 'asc' | 'desc';
 
 const CONNECTION_TIMEOUT = 20;
@@ -17,7 +23,7 @@ export default class MysqlEloquent<T extends IndexSignature>
 {
   private static pool: mysql.Pool | undefined = undefined;
 
-  private whereCondition: Map<string, WhereValueCondition> = new Map<string, WhereValueCondition>();
+  private whereCondition: Map<string, WhereValueObject> = new Map<string, WhereValueObject>();
   private fields: string[] = [];
   private _offset: number = 0;
   private _limit: number = DEFAULT_LIMIT;
@@ -31,7 +37,7 @@ export default class MysqlEloquent<T extends IndexSignature>
     "database": "mysql",
   };
 
-  protected databaseName: string = ''; // TODO
+  protected databaseName: string = '';
   protected tableName: string = '';
   protected primaryKey: string = 'id';
 
@@ -79,6 +85,21 @@ export default class MysqlEloquent<T extends IndexSignature>
   }
 
   /**
+   * table name
+   * @param tableName
+   * @returns
+   */
+  public table(tableName: DBTable): this
+  {
+    const [db, table] = tableName.trim().split('.');
+
+    this.databaseName = db;
+    this.tableName = table;
+
+    return this;
+  }
+
+  /**
    * select
    * @param fields string | string[]
    * @returns
@@ -97,12 +118,16 @@ export default class MysqlEloquent<T extends IndexSignature>
   /**
    * where
    * @param key string
-   * @param condition whereValueCondition
+   * @param condition WhereValueCondition
+   * @param operator WhereConditionOperator
    * @returns this
    */
-  public where(key: string, condition: WhereValueCondition): this
+  public where(key: string, condition: WhereValue, operator: WhereConditionOperator = '='): this
   {
-    this.whereCondition.set(key, condition);
+    this.whereCondition.set(key, {
+      "cond": operator,
+      "value": condition
+    });
 
     return this;
   }
@@ -165,7 +190,7 @@ export default class MysqlEloquent<T extends IndexSignature>
     const connection = await MysqlEloquent.getPool();
     const query: string = this.makeSelectQuery(instantLimit);
 
-    const condition: Array<WhereValueCondition> = this.getConditonValues();
+    const condition: WhereValue[] = this.getConditonValues();
     const [rows, columns] = await connection.execute(query, condition);
 
     return Object.values(rows);
@@ -186,9 +211,9 @@ export default class MysqlEloquent<T extends IndexSignature>
    * 현재 `where` 조건에 걸려있는 값들을 리턴합니다.
    * @returns Array<whereValueCondition>
    */
-  public getConditonValues(): Array<WhereValueCondition>
+  public getConditonValues(): WhereValue[]
   {
-    return Array.from(this.whereCondition).map(row => row[1]);
+    return Array.from(this.whereCondition).map(row => row[1].value);
   }
 
   /**
@@ -234,7 +259,7 @@ export default class MysqlEloquent<T extends IndexSignature>
     queries.push(`UPDATE \`${this.tableName}\` SET`);
 
     const fields: string[] = Object.keys(update);
-    const values: Array<WhereValueCondition> = Object.values(update);
+    const values: Array<WhereValueObject> = Object.values(update);
 
     const updateFields: string[] = [];
 
@@ -329,16 +354,13 @@ export default class MysqlEloquent<T extends IndexSignature>
   {
     const conditions: string[] = [];
 
-    this.whereCondition.forEach((value: WhereValueCondition, key: string) => {
+    this.whereCondition.forEach((value: WhereValueObject, key: string) => {
       switch (typeof value) {
-        case 'string':
-        case 'number':
-          conditions.push(`\`${key}\`=?`);
-          break;
         case 'boolean':
           conditions.push(`\`${key}\` IS ${value ? 'EXISTS' : 'NOT EXISTS'}`);
           break;
         default:
+          conditions.push(`\`${key}\` ${value.cond} ?`); // PDO
       }
     });
 
@@ -350,7 +372,7 @@ export default class MysqlEloquent<T extends IndexSignature>
     const queries: Array<string> = [];
 
     queries.push(`SELECT ${this.fields.length ? this.fields.map(this.backQuotes).join(', ') : '*'}`);
-    queries.push(`FROM \`${this.tableName}\``);
+    queries.push(`FROM \`${this.databaseName}\`.\`${this.tableName}\``);
     queries.push('WHERE');
 
     if (!this.whereCondition.size) {
